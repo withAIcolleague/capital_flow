@@ -10,14 +10,14 @@ import {
   Clock,
   ExternalLink
 } from 'lucide-react';
-import { customAPIService } from '../services/customAPIService';
+import { customAPIService, APIConfig } from '../services/customAPIService';
 
 interface APIDataDisplayProps {
   className?: string;
 }
 
 export default function APIDataDisplay({ className = '' }: APIDataDisplayProps) {
-  const [apiData, setApiData] = useState<any[]>([]);
+  const [apiData, setApiData] = useState<APIConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -28,7 +28,7 @@ export default function APIDataDisplay({ className = '' }: APIDataDisplayProps) 
       setError(null);
       
       const activeAPIs = customAPIService.getActiveAPIs();
-      const dataPromises = activeAPIs.map(async (api) => {
+      const dataPromises = activeAPIs.map(async (api: APIConfig) => {
         try {
           let data;
           switch (api.name) {
@@ -51,14 +51,14 @@ export default function APIDataDisplay({ className = '' }: APIDataDisplayProps) 
           return {
             ...api,
             data,
-            status: 'success',
+            status: 'success' as const,
             lastFetched: new Date().toISOString()
           };
         } catch (error) {
           return {
             ...api,
             data: null,
-            status: 'error',
+            status: 'error' as const,
             error: error instanceof Error ? error.message : 'Unknown error',
             lastFetched: new Date().toISOString()
           };
@@ -84,7 +84,7 @@ export default function APIDataDisplay({ className = '' }: APIDataDisplayProps) 
     return () => clearInterval(interval);
   }, []);
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status?: string) => {
     switch (status) {
       case 'success': return <CheckCircle className="w-4 h-4 text-green-400" />;
       case 'error': return <AlertCircle className="w-4 h-4 text-red-400" />;
@@ -173,13 +173,13 @@ export default function APIDataDisplay({ className = '' }: APIDataDisplayProps) 
 
             <p className="text-sm text-gray-300 mb-3">{api.description}</p>
 
-            {api.status === 'success' && api.data && (
+            {api.status === 'success' && (api as any).data && (
               <div className="space-y-2">
                 <div className="text-xs text-gray-400">
                   데이터 샘플:
                 </div>
                 <div className="bg-black/20 rounded-lg p-2 text-xs font-mono text-gray-300 max-h-20 overflow-y-auto">
-                  {JSON.stringify(api.data, null, 2).substring(0, 200)}...
+                  {JSON.stringify((api as any).data, null, 2).substring(0, 200)}...
                 </div>
               </div>
             )}
@@ -187,12 +187,12 @@ export default function APIDataDisplay({ className = '' }: APIDataDisplayProps) 
             {api.status === 'error' && (
               <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-2">
                 <div className="text-red-400 text-sm font-medium">오류 발생</div>
-                <div className="text-red-300 text-xs mt-1">{api.error}</div>
+                <div className="text-red-300 text-xs mt-1">{(api as any).error}</div>
               </div>
             )}
 
             <div className="mt-3 text-xs text-gray-400">
-              마지막 업데이트: {new Date(api.lastFetched).toLocaleTimeString()}
+              마지막 업데이트: {new Date((api as any).lastFetched).toLocaleTimeString()}
             </div>
           </motion.div>
         ))}
@@ -206,7 +206,7 @@ export default function APIDataDisplay({ className = '' }: APIDataDisplayProps) 
               전체 API 상태: {apiData.filter(api => api.status === 'success').length} / {apiData.length} 성공
             </span>
             <span className="text-gray-400">
-              마지막 전체 업데이트: {lastUpdated.toLocaleTimeString()}
+              마지막 전체 업데이트: {lastUpdated?.toLocaleTimeString()}
             </span>
           </div>
         </div>

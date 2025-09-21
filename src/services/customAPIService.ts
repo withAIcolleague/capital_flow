@@ -1,7 +1,20 @@
+// API 설정 타입 정의
+export interface APIConfig {
+  id: string;
+  name: string;
+  baseUrl: string;
+  apiKey: string;
+  description: string;
+  category: 'financial' | 'crypto' | 'economic' | 'other';
+  isActive: boolean;
+  lastTested?: string;
+  status?: 'success' | 'error' | 'unknown';
+}
+
 // 사용자 정의 API 서비스
 export class CustomAPIService {
   private static instance: CustomAPIService;
-  private apis: any[] = [];
+  private apis: APIConfig[] = [];
 
   static getInstance(): CustomAPIService {
     if (!CustomAPIService.instance) {
@@ -122,7 +135,7 @@ export class CustomAPIService {
   }
 
   // 모든 활성 API 목록 반환
-  getActiveAPIs() {
+  getActiveAPIs(): APIConfig[] {
     this.loadAPIs();
     return this.apis.filter(api => api.isActive);
   }
@@ -170,6 +183,12 @@ export class CustomAPIService {
       lastTested: api.lastTested,
       status: api.status
     }));
+  }
+
+  // 모든 API 목록 반환 (활성/비활성 포함)
+  getAllAPIs(): APIConfig[] {
+    this.loadAPIs();
+    return this.apis;
   }
 }
 
