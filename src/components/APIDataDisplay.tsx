@@ -38,10 +38,7 @@ export default function APIDataDisplay({ className = '' }: APIDataDisplayProps) 
               break;
             case 'Yahoo Finance':
               data = await apiService.getYahooFinanceData('AAPL');
-              break;
-            case 'CoinGecko Pro':
-              data = await apiService.getCoinGeckoProData('bitcoin');
-              break;
+              break;            
             case 'FRED (Federal Reserve)':
               data = await apiService.getFREDData('GDP');
               break;

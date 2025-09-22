@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Link, 
   Bitcoin, 
-  Ethereum, 
+  Coins, 
   TrendingUp, 
   TrendingDown,
   Activity,
@@ -54,7 +54,7 @@ export default function BlockchainAnalyzer() {
   const networks = [
     { id: 'all', name: '전체', icon: Link },
     { id: 'bitcoin', name: 'Bitcoin', icon: Bitcoin },
-    { id: 'ethereum', name: 'Ethereum', icon: Ethereum },
+    { id: 'ethereum', name: 'Ethereum', icon: Coins },
     { id: 'binance', name: 'Binance Smart Chain', icon: Activity },
     { id: 'polygon', name: 'Polygon', icon: Shield }
   ];
@@ -90,7 +90,7 @@ export default function BlockchainAnalyzer() {
       hashRate: 0,
       difficulty: 0,
       blockTime: 13,
-      icon: Ethereum,
+      icon: Coins,
       color: '#627EEA'
     },
     {
