@@ -4,8 +4,8 @@ export class APIService {
   private apiKey: string;
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001/api';
-    this.apiKey = process.env.NEXT_PUBLIC_API_KEY || '';
+    this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.capitalflowmonitor.com/v1';
+    this.apiKey = process.env.NEXT_PUBLIC_API_KEY || 'demo_key';
   }
 
   // 자산 규모 데이터 가져오기

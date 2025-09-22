@@ -16,6 +16,7 @@ import {
   Info
 } from 'lucide-react';
 import { APIConfig } from '../services/customAPIService';
+import { realAPIService } from '../services/realAPIService';
 
 export default function APISettings() {
   const [apis, setApis] = useState<APIConfig[]>([]);
@@ -23,6 +24,7 @@ export default function APISettings() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingApi, setEditingApi] = useState<APIConfig | null>(null);
   const [showApiKey, setShowApiKey] = useState<Record<string, boolean>>({});
+  const [testingAPIs, setTestingAPIs] = useState<string[]>([]);
 
   // 새 API 폼 상태
   const [newApi, setNewApi] = useState<Partial<APIConfig>>({
@@ -34,7 +36,7 @@ export default function APISettings() {
     isActive: true
   });
 
-  // 미리 정의된 API 템플릿들
+  // 사용자 제공 API 키들
   const apiTemplates = [
     {
       name: 'Alpha Vantage',
@@ -44,31 +46,7 @@ export default function APISettings() {
       exampleKey: '6BM662UT3RN9UIBE',
       pricing: {
         free: '5 calls/min, 500 calls/day',
-        premium: '$49.99/month - 75 calls/min, 30 calls/sec',
-        enterprise: '$249.99/month - 1200 calls/min, 75 calls/sec'
-      }
-    },
-    {
-      name: 'Yahoo Finance',
-      baseUrl: 'https://query1.finance.yahoo.com/v8/finance/chart',
-      description: '실시간 주식 데이터',
-      category: 'financial' as const,
-      exampleKey: 'No API key required',
-      pricing: {
-        free: '무제한 (비공식 API)',
-        note: 'Yahoo Finance는 공식 API를 제공하지 않으며, 비공식 API 사용 시 제한이 있을 수 있습니다.'
-      }
-    },
-    {
-      name: 'CoinGecko Pro',
-      baseUrl: 'https://api.coingecko.com/api/v3',
-      description: '암호화폐 데이터 (Pro 버전)',
-      category: 'crypto' as const,
-      exampleKey: 'YOUR_PRO_API_KEY',
-      pricing: {
-        free: '10-50 calls/min',
-        pro: '$129/month - 500 calls/min',
-        enterprise: 'Custom pricing - 10,000+ calls/min'
+        note: '무료 티어 제공. API 키만 등록하면 됩니다.'
       }
     },
     {
@@ -83,16 +61,14 @@ export default function APISettings() {
       }
     },
     {
-      name: 'Quandl',
-      baseUrl: 'https://www.quandl.com/api/v3',
-      description: '금융 및 경제 데이터',
+      name: 'Nasdaq Data Link',
+      baseUrl: 'https://data.nasdaq.com/api/v3',
+      description: '기관투자자 데이터',
       category: 'financial' as const,
       exampleKey: '5EpP4EX1dzbsurQ3xjsw',
       pricing: {
         free: '50 calls/day',
-        basic: '$50/month - 2,000 calls/day',
-        premium: '$200/month - 10,000 calls/day',
-        enterprise: 'Custom pricing'
+        note: '무료 티어 제공. 기관투자자 데이터에 특화.'
       }
     },
     {
@@ -103,21 +79,7 @@ export default function APISettings() {
       exampleKey: 'dlEuZrQUoiCbqxko74MJOM5TiVP7kusp',
       pricing: {
         free: '5 calls/min',
-        starter: '$99/month - 5 calls/min',
-        developer: '$199/month - 15 calls/min',
-        advanced: '$499/month - 50 calls/min'
-      }
-    },
-    {
-      name: 'IEX Cloud',
-      baseUrl: 'https://cloud.iexapis.com/stable',
-      description: '주식, 암호화폐, 뉴스 데이터',
-      category: 'financial' as const,
-      exampleKey: 'YOUR_IEX_API_KEY',
-      pricing: {
-        free: '500,000 calls/month',
-        paid: '$9/month - 1M calls/month',
-        enterprise: 'Custom pricing'
+        note: '무료 티어 제공. 실시간 데이터에 특화.'
       }
     },
     {
@@ -128,34 +90,40 @@ export default function APISettings() {
       exampleKey: 'd38esn9r01qlbdj56370d38esn9r01qlbdj5637g',
       pricing: {
         free: '60 calls/min',
-        basic: '$9/month - 300 calls/min',
-        premium: '$39/month - 1,200 calls/min',
-        enterprise: '$199/month - 6,000 calls/min'
+        note: '무료 티어 제공. 뉴스 및 센티먼트 데이터 포함.'
       }
     },
     {
-      name: 'CryptoCompare',
-      baseUrl: 'https://min-api.cryptocompare.com/data',
-      description: '암호화폐 가격, 뉴스, 소셜 데이터',
-      category: 'crypto' as const,
-      exampleKey: 'YOUR_CRYPTOCOMPARE_API_KEY',
-      pricing: {
-        free: '100,000 calls/month',
-        paid: '$29/month - 1M calls/month',
-        enterprise: 'Custom pricing'
-      }
-    },
-    {
-      name: 'CoinMarketCap',
-      baseUrl: 'https://pro-api.coinmarketcap.com/v1',
-      description: '암호화폐 시장 데이터',
+      name: 'CoinDesk',
+      baseUrl: 'https://api.coindesk.com/v1',
+      description: '암호화폐 가격 데이터',
       category: 'crypto' as const,
       exampleKey: 'd64d7af7548b5f7ac4ebaf453c56dc33e9e5a150fd1b3db588bd6aa3770f325f',
       pricing: {
-        free: '10,000 calls/month',
-        basic: '$29/month - 100,000 calls/month',
-        standard: '$79/month - 1M calls/month',
-        professional: '$299/month - 10M calls/month'
+        free: '무제한',
+        note: 'API 키 없이도 사용 가능. 비트코인 가격 데이터.'
+      }
+    },
+    {
+      name: 'Yahoo Finance',
+      baseUrl: 'https://query1.finance.yahoo.com/v8/finance/chart',
+      description: '실시간 주식 데이터 (비공식)',
+      category: 'financial' as const,
+      exampleKey: 'No API key required',
+      pricing: {
+        free: '무제한 (비공식 API)',
+        note: 'Yahoo Finance는 공식 API를 제공하지 않으며, 비공식 API 사용 시 제한이 있을 수 있습니다.'
+      }
+    },
+    {
+      name: 'CoinGecko',
+      baseUrl: 'https://api.coingecko.com/api/v3',
+      description: '암호화폐 데이터',
+      category: 'crypto' as const,
+      exampleKey: 'No API key required',
+      pricing: {
+        free: '10-50 calls/min',
+        note: 'API 키 없이도 사용 가능하지만 제한이 있습니다.'
       }
     }
   ];
@@ -228,24 +196,66 @@ export default function APISettings() {
 
   const testAPI = async (api: APIConfig) => {
     try {
-      const testUrl = `${api.baseUrl}?${api.apiKey ? `api_key=${api.apiKey}&` : ''}test=true`;
-      const response = await fetch(testUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      const status = response.ok ? 'success' : 'error';
+      setTestingAPIs(prev => [...prev, api.id]);
+      
+      // 실제 API 서비스를 사용한 테스트
+      let testResult;
+      switch (api.name) {
+        case 'Alpha Vantage':
+          testResult = await realAPIService.checkAPIStatus('alphaVantage');
+          break;
+        case 'FRED (Federal Reserve)':
+          testResult = await realAPIService.checkAPIStatus('fred');
+          break;
+        case 'CoinGecko':
+          testResult = await realAPIService.checkAPIStatus('coinGecko');
+          break;
+        case 'Yahoo Finance':
+          testResult = await realAPIService.checkAPIStatus('yahooFinance');
+          break;
+        case 'Nasdaq Data Link':
+          testResult = await realAPIService.checkAPIStatus('nasdaq');
+          break;
+        case 'Polygon.io':
+          testResult = await realAPIService.checkAPIStatus('polygon');
+          break;
+        case 'Finnhub':
+          testResult = await realAPIService.checkAPIStatus('finnhub');
+          break;
+        case 'CoinDesk':
+          testResult = await realAPIService.checkAPIStatus('coindesk');
+          break;
+        default:
+          // 기본 테스트
+          const testUrl = `${api.baseUrl}?${api.apiKey ? `api_key=${api.apiKey}&` : ''}test=true`;
+          const response = await fetch(testUrl, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+          
+          if (response.ok) {
+            testResult = { status: 'active', message: 'API 정상 작동' };
+          } else {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+      }
+      
+      // 결과에 따라 상태 업데이트
       updateAPI(api.id, { 
-        status, 
+        status: testResult.status === 'active' ? 'success' : 'error',
         lastTested: new Date().toISOString() 
       });
+      
     } catch (error) {
+      console.error('API 테스트 실패:', error);
       updateAPI(api.id, { 
         status: 'error', 
         lastTested: new Date().toISOString() 
       });
+    } finally {
+      setTestingAPIs(prev => prev.filter(id => id !== api.id));
     }
   };
 
@@ -300,7 +310,7 @@ export default function APISettings() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900">
+    <div className="space-y-6">
       {/* 헤더 */}
       <motion.header
         initial={{ y: -100, opacity: 0 }}

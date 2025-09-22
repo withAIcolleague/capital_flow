@@ -6,35 +6,33 @@ import {
   DollarSign, 
   Building2, 
   BarChart3, 
+  BarChart,
   Coins,
   Globe,
   ArrowRight,
   ArrowLeft,
   Zap,
-  Eye,
-  Bell,
   Shield,
   Activity,
-  Brain,
   Link,
-  Box,
   Palette,
-  Settings
+  Settings,
+  Eye
 } from 'lucide-react';
 
 // 컴포넌트 import
-import ShadowEconomyTracker from '../components/ShadowEconomyTracker';
 import CryptoFlowTracker from '../components/CryptoFlowTracker';
-import RealTimeAlerts from '../components/RealTimeAlerts';
-import MLAnomalyDetector from '../components/MLAnomalyDetector';
 import BlockchainAnalyzer from '../components/BlockchainAnalyzer';
-import Visualization3D from '../components/3DVisualization';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import PWAInstaller from '../components/PWAInstaller';
 import DataFreshnessIndicator from '../components/DataFreshnessIndicator';
 import APISettings from '../components/APISettings';
 import APIDataDisplay from '../components/APIDataDisplay';
-import APIPricingGuide from '../components/APIPricingGuide';
+import RealTimeDataFeed from '../components/RealTimeDataFeed';
+import InstitutionalCapitalOverview from '../components/InstitutionalCapitalOverview';
+import APIStatusMonitor from '../components/APIStatusMonitor';
+import DetailedCapitalAnalysis from '../components/DetailedCapitalAnalysis';
+import ShadowEconomyTracker from '../components/ShadowEconomyTracker';
 
 // 훅 import
 import { useLiveData } from '../hooks/useLiveData';
@@ -48,80 +46,15 @@ export default function CapitalFlowMonitor() {
   const { data: liveData, loading: dataLoading, refresh, isStale } = useLiveData();
   const [currentTheme, setCurrentTheme] = useState('dark');
 
-  // 샘플 데이터
-  const assetData = [
-    {
-      id: 'equity',
-      name: '주식',
-      value: 126.7,
-      unit: 'T',
-      change: -2.3,
-      flow: -38.66,
-      color: '#3B82F6',
-      icon: BarChart3
-    },
-    {
-      id: 'bonds',
-      name: '채권',
-      value: 145.1,
-      unit: 'T',
-      change: 1.8,
-      flow: 12.4,
-      color: '#10B981',
-      icon: Building2
-    },
-    {
-      id: 'real_estate',
-      name: '부동산',
-      value: 286.9,
-      unit: 'T',
-      change: 3.2,
-      flow: 5.7,
-      color: '#F59E0B',
-      icon: Building2
-    },
-    {
-      id: 'cash',
-      name: '현금',
-      value: 45.2,
-      unit: 'T',
-      change: -1.1,
-      flow: -15.3,
-      color: '#8B5CF6',
-      icon: DollarSign
-    },
-    {
-      id: 'commodities',
-      name: '원자재',
-      value: 12.8,
-      unit: 'T',
-      change: 4.5,
-      flow: 2.1,
-      color: '#EF4444',
-      icon: Coins
-    },
-    {
-      id: 'fdi',
-      name: 'FDI',
-      value: 1.5,
-      unit: 'T',
-      change: -0.8,
-      flow: -0.3,
-      color: '#06B6D4',
-      icon: Globe
-    }
-  ];
-
   const viewOptions = [
-    { id: 'overview', name: '개요', icon: BarChart3, color: '#3B82F6' },
-    { id: 'shadow', name: '비제도권', icon: Eye, color: '#EF4444' },
-    { id: 'crypto', name: '암호화폐', icon: Coins, color: '#8B5CF6' },
-    { id: 'alerts', name: '실시간 알림', icon: Bell, color: '#F59E0B' },
-    { id: 'ml', name: 'ML 분석', icon: Brain, color: '#8B5CF6' },
-    { id: 'blockchain', name: '블록체인', icon: Link, color: '#10B981' },
-    { id: '3d', name: '3D 시각화', icon: Box, color: '#06B6D4' },
-    { id: 'api-settings', name: 'API 설정', icon: Settings, color: '#8B5CF6' },
-    { id: 'api-pricing', name: 'API 가격 가이드', icon: DollarSign, color: '#10B981' }
+    { id: 'overview', name: '제도권 자금 현황', icon: BarChart3, color: '#6366F1' },
+    { id: 'detailed', name: '제도권 자금 상세 분석', icon: BarChart, color: '#10B981' },
+    { id: 'shadow', name: '비제도권 자금 현황', icon: Eye, color: '#8B5CF6' }, 
+    { id: 'crypto', name: '암호화폐', icon: Coins, color: '#F59E0B' },
+    { id: 'blockchain', name: '블록체인', icon: Link, color: '#06B6D4' },
+    { id: 'realtime', name: '실시간 피드', icon: Activity, color: '#EF4444' },
+    { id: 'api-settings', name: 'API 설정', icon: Settings, color: '#6B7280' },
+    { id: 'api-status', name: 'API 상태', icon: Activity, color: '#8B5CF6' }
   ];
 
   useEffect(() => {
@@ -168,19 +101,21 @@ export default function CapitalFlowMonitor() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-      {/* 헤더 */}
-      <motion.header
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="p-6 border-b border-blue-800/30"
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex">
+      {/* 왼쪽 사이드바 */}
+      <motion.aside
+        initial={{ x: -300, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
+        className="w-80 bg-gradient-to-br from-gray-200 to-gray-300 backdrop-blur-lg border-r-2 border-gray-400 shadow-xl flex flex-col"
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <motion.h1
-            initial={{ x: -50, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-3xl font-bold text-white flex items-center gap-3"
+        {/* 로고 및 제목 */}
+        <div className="p-6 border-b-2 border-gray-400">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="flex items-center gap-4 mb-6"
           >
             <motion.div
               animate={{ 
@@ -192,49 +127,53 @@ export default function CapitalFlowMonitor() {
                 repeat: Infinity,
                 repeatDelay: 2
               }}
+              className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 backdrop-blur-lg rounded-xl flex items-center justify-center border-2 border-blue-600 shadow-lg"
             >
-              <Zap className="w-8 h-8 text-yellow-400" />
+              <Zap className="w-6 h-6 text-white" />
             </motion.div>
-            Capital Flow Monitor
-          </motion.h1>
-          
-          <motion.div
-            initial={{ x: 50, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="flex items-center gap-4"
-          >
-            {/* 테마 스위처 */}
-            <ThemeSwitcher onThemeChange={handleThemeChange} />
-            
-            {/* 뷰 옵션 */}
-            <div className="flex gap-2">
-              {viewOptions.map((view, index) => (
-                <motion.button
-                  key={view.id}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + index * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setActiveView(view.id)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-                    activeView === view.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-blue-800/50 text-blue-200 hover:bg-blue-700/50'
-                  }`}
-                >
-                  <view.icon className="w-4 h-4" style={{ color: view.color }} />
-                  {view.name}
-                </motion.button>
-              ))}
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">자본 흐름 모니터</h1>
+              <p className="text-gray-700 text-sm font-medium">실시간 글로벌 자본 흐름 분석</p>
             </div>
           </motion.div>
+
+          {/* 테마 스위처 */}
+          <ThemeSwitcher onThemeChange={handleThemeChange} />
         </div>
-      </motion.header>
+
+        {/* 네비게이션 메뉴 */}
+        <nav className="flex-1 p-4">
+          <div className="space-y-2">
+            {viewOptions.map((view) => (
+              <motion.button
+                key={view.id}
+                whileHover={{ scale: 1.02, x: 4 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setActiveView(view.id)}
+                className={`w-full px-4 py-3 rounded-lg font-semibold transition-all flex items-center gap-3 text-left backdrop-blur-lg border-2 ${
+                  activeView === view.id
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white border-blue-600 shadow-lg'
+                    : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 hover:from-gray-200 hover:to-gray-300 border-gray-400 shadow-md'
+                }`}
+              >
+                <view.icon className="w-5 h-5" style={{ color: view.color }} />
+                <span>{view.name}</span>
+              </motion.button>
+            ))}
+          </div>
+        </nav>
+
+        {/* 하단 정보 */}
+        <div className="p-4 border-t-2 border-gray-400">
+          <div className="text-xs text-gray-800 text-center font-medium">
+            <p>실시간 데이터 업데이트</p>
+            <p className="text-green-700 font-bold">● 온라인</p>
+          </div>
+        </div>
+      </motion.aside>
 
       {/* 메인 콘텐츠 */}
-      <main className="max-w-7xl mx-auto p-6">
+      <main className="flex-1 p-6 overflow-auto">
         <AnimatePresence mode="wait">
           {activeView === 'overview' && (
             <motion.div
@@ -245,12 +184,22 @@ export default function CapitalFlowMonitor() {
               transition={{ duration: 0.5 }}
               className="space-y-8"
             >
+              {/* 제도권 자금 현황 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="mb-8"
+              >
+                <InstitutionalCapitalOverview />
+              </motion.div>
+
               {/* 데이터 신선도 표시 */}
               {liveData && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
+                  transition={{ delay: 0.2 }}
                   className="mb-6"
                 >
                   <DataFreshnessIndicator
@@ -265,182 +214,22 @@ export default function CapitalFlowMonitor() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.3 }}
                 className="mb-8"
               >
                 <APIDataDisplay />
               </motion.div>
 
-              {/* 자산군별 카드 그리드 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {assetData.map((asset, index) => (
-                  <motion.div
-                    key={asset.id}
-                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ 
-                      delay: index * 0.1,
-                      type: "spring",
-                      stiffness: 100
-                    }}
-                    whileHover={{ 
-                      scale: 1.05,
-                      rotateY: 5,
-                      transition: { duration: 0.2 }
-                    }}
-                    className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <motion.div
-                          animate={{ rotate: [0, 10, -10, 0] }}
-                          transition={{ 
-                            duration: 2,
-                            repeat: Infinity,
-                            repeatDelay: 3
-                          }}
-                          className="p-3 rounded-xl"
-                          style={{ backgroundColor: `${asset.color}20` }}
-                        >
-                          <asset.icon className="w-6 h-6" style={{ color: asset.color }} />
-                        </motion.div>
-                        <h3 className="text-xl font-semibold text-white">{asset.name}</h3>
-                      </div>
-                      <motion.div
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ 
-                          duration: 1.5,
-                          repeat: Infinity,
-                          repeatDelay: 2
-                        }}
-                      >
-                        {asset.change > 0 ? (
-                          <TrendingUp className="w-5 h-5 text-green-400" />
-                        ) : (
-                          <TrendingDown className="w-5 h-5 text-red-400" />
-                        )}
-                      </motion.div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-baseline gap-2">
-                        <motion.span
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ delay: index * 0.1 + 0.5 }}
-                          className="text-3xl font-bold text-white"
-                        >
-                          ${asset.value}
-                        </motion.span>
-                        <span className="text-lg text-gray-300">{asset.unit}</span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <motion.span
-                          initial={{ x: -20, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
-                          transition={{ delay: index * 0.1 + 0.7 }}
-                          className={`text-sm font-medium ${
-                            asset.change > 0 ? 'text-green-400' : 'text-red-400'
-                          }`}
-                        >
-                          {asset.change > 0 ? '+' : ''}{asset.change}%
-                        </motion.span>
-                        <span className="text-sm text-gray-400">YoY</span>
-                      </div>
-
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: '100%' }}
-                        transition={{ delay: index * 0.1 + 0.9, duration: 1 }}
-                        className="h-1 bg-gray-700 rounded-full overflow-hidden"
-                      >
-                        <motion.div
-                          initial={{ x: '-100%' }}
-                          animate={{ x: 0 }}
-                          transition={{ delay: index * 0.1 + 1.1, duration: 0.8 }}
-                          className="h-full rounded-full"
-                          style={{ 
-                            backgroundColor: asset.color,
-                            width: `${Math.abs(asset.change) * 20}%`
-                          }}
-                        />
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* 주간 플로우 차트 */}
+              {/* 실시간 데이터 피드 */}
               <motion.div
-                initial={{ opacity: 0, y: 50 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl"
+                transition={{ delay: 0.4 }}
+                className="mb-8"
               >
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                  <motion.div
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  >
-                    <ArrowRight className="w-6 h-6 text-blue-400" />
-                  </motion.div>
-                  주간 자금 흐름
-                </h2>
-                
-                <div className="space-y-4">
-                  {assetData.map((asset, index) => (
-                    <motion.div
-                      key={asset.id}
-                      initial={{ x: -100, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: 1 + index * 0.1 }}
-                      className="flex items-center justify-between p-4 bg-white/5 rounded-xl"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className="w-4 h-4 rounded-full"
-                          style={{ backgroundColor: asset.color }}
-                        />
-                        <span className="text-white font-medium">{asset.name}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-4">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: '200px' }}
-                          transition={{ delay: 1.2 + index * 0.1, duration: 0.8 }}
-                          className="h-2 bg-gray-700 rounded-full overflow-hidden"
-                        >
-                          <motion.div
-                            initial={{ x: asset.flow > 0 ? '-100%' : '100%' }}
-                            animate={{ x: 0 }}
-                            transition={{ delay: 1.4 + index * 0.1, duration: 0.6 }}
-                            className={`h-full rounded-full ${
-                              asset.flow > 0 ? 'bg-green-400' : 'bg-red-400'
-                            }`}
-                            style={{ 
-                              width: `${Math.abs(asset.flow) * 2}%`,
-                              marginLeft: asset.flow > 0 ? '0' : 'auto'
-                            }}
-                          />
-                        </motion.div>
-                        
-                        <motion.span
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ delay: 1.6 + index * 0.1 }}
-                          className={`font-bold ${
-                            asset.flow > 0 ? 'text-green-400' : 'text-red-400'
-                          }`}
-                        >
-                          {asset.flow > 0 ? '+' : ''}${asset.flow}B
-                        </motion.span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                <RealTimeDataFeed />
               </motion.div>
+
             </motion.div>
           )}
 
@@ -456,6 +245,18 @@ export default function CapitalFlowMonitor() {
             </motion.div>
           )}
 
+          {activeView === 'detailed' && (
+            <motion.div
+              key="detailed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <DetailedCapitalAnalysis />
+            </motion.div>
+          )}
+
           {activeView === 'crypto' && (
             <motion.div
               key="crypto"
@@ -465,30 +266,6 @@ export default function CapitalFlowMonitor() {
               transition={{ duration: 0.5 }}
             >
               <CryptoFlowTracker />
-            </motion.div>
-          )}
-
-          {activeView === 'alerts' && (
-            <motion.div
-              key="alerts"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-            >
-              <RealTimeAlerts />
-            </motion.div>
-          )}
-
-          {activeView === 'ml' && (
-            <motion.div
-              key="ml"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-            >
-              <MLAnomalyDetector />
             </motion.div>
           )}
 
@@ -504,18 +281,6 @@ export default function CapitalFlowMonitor() {
             </motion.div>
           )}
 
-          {activeView === '3d' && (
-            <motion.div
-              key="3d"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Visualization3D />
-            </motion.div>
-          )}
-
           {activeView === 'api-settings' && (
             <motion.div
               key="api-settings"
@@ -528,15 +293,26 @@ export default function CapitalFlowMonitor() {
             </motion.div>
           )}
 
-          {activeView === 'api-pricing' && (
+          {activeView === 'realtime' && (
             <motion.div
-              key="api-pricing"
+              key="realtime"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
             >
-              <APIPricingGuide />
+              <RealTimeDataFeed className="max-w-6xl mx-auto" />
+            </motion.div>
+          )}
+          {activeView === 'api-status' && (
+            <motion.div
+              key="api-status"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <APIStatusMonitor />
             </motion.div>
           )}
         </AnimatePresence>

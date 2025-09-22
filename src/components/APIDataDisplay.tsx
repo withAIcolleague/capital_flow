@@ -11,6 +11,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { customAPIService, APIConfig, CustomAPIService } from '../services/customAPIService';
+import { realAPIService } from '../services/realAPIService';
 
 interface APIDataDisplayProps {
   className?: string;
@@ -34,13 +35,28 @@ export default function APIDataDisplay({ className = '' }: APIDataDisplayProps) 
           let data;
           switch (api.name) {
             case 'Alpha Vantage':
-              data = await apiService.getAlphaVantageData('AAPL');
+              data = await realAPIService.getAlphaVantageData('AAPL');
+              break;
+            case 'CoinGecko':
+              data = await realAPIService.getCoinGeckoData('bitcoin');
               break;
             case 'Yahoo Finance':
-              data = await apiService.getYahooFinanceData('AAPL');
+              data = await realAPIService.getYahooFinanceData('AAPL');
+              break;
+            case 'Nasdaq Data Link':
+              data = await realAPIService.getNasdaqData('institutional-investors');
+              break;
+            case 'Polygon.io':
+              data = await realAPIService.getPolygonData('AAPL');
+              break;
+            case 'Finnhub':
+              data = await realAPIService.getFinnhubData('AAPL');
+              break;
+            case 'CoinDesk':
+              data = await realAPIService.getCoinDeskData('USD');
               break;            
             case 'FRED (Federal Reserve)':
-              data = await apiService.getFREDData('GDP');
+              data = await realAPIService.getFREDData('GDP');
               break;
             default:
               data = { message: 'No specific data available' };

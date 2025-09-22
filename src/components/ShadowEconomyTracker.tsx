@@ -2,411 +2,605 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Eye, 
-  EyeOff, 
-  Shield, 
-  AlertTriangle, 
   TrendingUp, 
-  TrendingDown,
+  TrendingDown, 
   DollarSign,
-  Building2,
-  Coins,
+  BarChart3,
+  Activity,
+  RefreshCw,
+  Clock,
+  Database,
+  AlertCircle,
+  CheckCircle,
   Globe,
-  Lock,
-  Unlock
+  Shield,
+  Coins,
+  Target,
+  Zap,
+  ArrowUpRight,
+  ArrowDownRight
 } from 'lucide-react';
 
-interface ShadowEconomyData {
-  id: string;
-  name: string;
-  category: 'shadow' | 'offshore' | 'illicit' | 'crypto' | 'physical';
-  estimatedValue: number;
-  unit: 'T';
-  riskLevel: 'low' | 'medium' | 'high' | 'critical';
-  trend: 'up' | 'down' | 'stable';
-  lastUpdate: string;
-  description: string;
-  color: string;
-  icon: any;
+interface ShadowEconomyTrackerProps {
+  className?: string;
 }
 
-export default function ShadowEconomyTracker() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [isLoading, setIsLoading] = useState(true);
+// 비제도권 자금 데이터 타입
+interface ShadowCapitalData {
+  id: string;
+  name: string;
+  category: 'offshore' | 'crypto' | 'precious_metals' | 'art' | 'real_estate' | 'cash' | 'other';
+  estimatedValue: number;
+  unit: string;
+  change: number;
+  flow: number;
+  color: string;
+  icon: any;
+  lastUpdated: string;
+  dataSource: string;
+  reliability: 'high' | 'medium' | 'low';
+  nextUpdate: string;
+  trend: 'up' | 'down' | 'stable';
+  volatility: number;
+  marketShare: number;
+  description: string;
+  riskLevel: 'low' | 'medium' | 'high';
+  liquidity: 'high' | 'medium' | 'low';
+}
 
-  const shadowEconomyData: ShadowEconomyData[] = [
+// 메인 컴포넌트
+export default function ShadowEconomyTracker({ className = '' }: ShadowEconomyTrackerProps) {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  // 비제도권 자금 데이터
+  const shadowCapitalData: ShadowCapitalData[] = [
     {
-      id: 'shadow_economy',
-      name: '그림자 경제',
-      category: 'shadow',
-      estimatedValue: 15.0,
-      unit: 'T',
-      riskLevel: 'high',
-      trend: 'up',
-      lastUpdate: '2024-12-01',
-      description: 'GDP의 10-20% 규모의 비공식 경제 활동',
-      color: '#EF4444',
-      icon: EyeOff
-    },
-    {
-      id: 'offshore_wealth',
-      name: '조세회피처 자산',
+      id: 'offshore',
+      name: '오프쇼어 자금',
       category: 'offshore',
-      estimatedValue: 8.5,
+      estimatedValue: 32.1,
       unit: 'T',
-      riskLevel: 'critical',
-      trend: 'stable',
-      lastUpdate: '2024-11-15',
-      description: '역외펀드, 신탁, 유령회사 등을 통한 자산 은닉',
-      color: '#F59E0B',
-      icon: Building2
-    },
-    {
-      id: 'illicit_finance',
-      name: '불법 금융',
-      category: 'illicit',
-      estimatedValue: 1.5,
-      unit: 'T',
-      riskLevel: 'critical',
+      change: 2.8,
+      flow: 1.2,
+      color: '#6366F1',
+      icon: Globe,
+      lastUpdated: '2024-12-01T09:30:00Z',
+      dataSource: 'Tax Justice Network',
+      reliability: 'medium',
+      nextUpdate: '2024-12-02T09:30:00Z',
       trend: 'up',
-      lastUpdate: '2024-12-10',
-      description: '마약, 무기, 사이버 범죄 등 불법 활동 자금',
-      color: '#DC2626',
-      icon: AlertTriangle
+      volatility: 12.5,
+      marketShare: 15.2,
+      description: '세금 피난처 및 오프쇼어 금융센터에 숨겨진 자금',
+      riskLevel: 'high',
+      liquidity: 'low'
     },
     {
-      id: 'crypto_assets',
-      name: '암호화폐 자산',
+      id: 'crypto',
+      name: '암호화폐 자금',
       category: 'crypto',
-      estimatedValue: 2.5,
+      estimatedValue: 2.1,
       unit: 'T',
-      riskLevel: 'medium',
-      trend: 'up',
-      lastUpdate: '2024-12-15',
-      description: '비트코인, 이더리움 등 암호화폐 시가총액',
+      change: 8.4,
+      flow: 0.3,
       color: '#8B5CF6',
-      icon: Coins
+      icon: Coins,
+      lastUpdated: '2024-12-01T11:30:00Z',
+      dataSource: 'Chainalysis',
+      reliability: 'high',
+      nextUpdate: '2024-12-02T11:30:00Z',
+      trend: 'up',
+      volatility: 45.7,
+      marketShare: 1.0,
+      description: '비트코인, 이더리움 등 암호화폐로 보관된 자금',
+      riskLevel: 'high',
+      liquidity: 'high'
     },
     {
-      id: 'physical_assets',
-      name: '현물 자산',
-      category: 'physical',
-      estimatedValue: 18.0,
+      id: 'precious_metals',
+      name: '귀금속 자금',
+      category: 'precious_metals',
+      estimatedValue: 8.7,
       unit: 'T',
-      riskLevel: 'low',
-      trend: 'stable',
-      lastUpdate: '2024-11-30',
-      description: '금, 현금, 예술품, 다이아몬드 등 현물 자산',
+      change: 3.2,
+      flow: 0.4,
+      color: '#F59E0B',
+      icon: Coins,
+      lastUpdated: '2024-12-01T10:00:00Z',
+      dataSource: 'World Gold Council',
+      reliability: 'high',
+      nextUpdate: '2024-12-02T10:00:00Z',
+      trend: 'up',
+      volatility: 18.3,
+      marketShare: 4.1,
+      description: '금, 은, 백금 등 귀금속으로 보관된 자금',
+      riskLevel: 'medium',
+      liquidity: 'medium'
+    },
+    {
+      id: 'art',
+      name: '예술품 자금',
+      category: 'art',
+      estimatedValue: 1.7,
+      unit: 'T',
+      change: 5.1,
+      flow: 0.1,
+      color: '#EC4899',
+      icon: Target,
+      lastUpdated: '2024-11-30T14:00:00Z',
+      dataSource: 'Art Basel',
+      reliability: 'low',
+      nextUpdate: '2024-12-07T14:00:00Z',
+      trend: 'up',
+      volatility: 25.8,
+      marketShare: 0.8,
+      description: '고가 예술품으로 투자된 자금',
+      riskLevel: 'high',
+      liquidity: 'low'
+    },
+    {
+      id: 'real_estate',
+      name: '부동산 자금',
+      category: 'real_estate',
+      estimatedValue: 45.3,
+      unit: 'T',
+      change: 1.8,
+      flow: 2.1,
       color: '#10B981',
-      icon: DollarSign
+      icon: Shield,
+      lastUpdated: '2024-12-01T08:00:00Z',
+      dataSource: 'Savills',
+      reliability: 'high',
+      nextUpdate: '2024-12-02T08:00:00Z',
+      trend: 'up',
+      volatility: 15.2,
+      marketShare: 21.4,
+      description: '고가 부동산으로 투자된 자금',
+      riskLevel: 'medium',
+      liquidity: 'low'
+    },
+    {
+      id: 'cash',
+      name: '현금 자금',
+      category: 'cash',
+      estimatedValue: 12.4,
+      unit: 'T',
+      change: -1.2,
+      flow: -0.8,
+      color: '#6B7280',
+      icon: DollarSign,
+      lastUpdated: '2024-12-01T07:00:00Z',
+      dataSource: 'IMF',
+      reliability: 'medium',
+      nextUpdate: '2024-12-02T07:00:00Z',
+      trend: 'down',
+      volatility: 8.7,
+      marketShare: 5.9,
+      description: '물리적 현금으로 보관된 자금',
+      riskLevel: 'low',
+      liquidity: 'high'
+    },
+    {
+      id: 'other',
+      name: '기타 자금',
+      category: 'other',
+      estimatedValue: 18.9,
+      unit: 'T',
+      change: 0.5,
+      flow: 0.3,
+      color: '#8B5CF6',
+      icon: Activity,
+      lastUpdated: '2024-11-29T16:00:00Z',
+      dataSource: 'Various',
+      reliability: 'low',
+      nextUpdate: '2024-12-06T16:00:00Z',
+      trend: 'stable',
+      volatility: 22.1,
+      marketShare: 8.9,
+      description: '기타 비제도권 자금 (컬렉터블, 보석 등)',
+      riskLevel: 'high',
+      liquidity: 'low'
     }
   ];
 
-  const categories = [
-    { id: 'all', name: '전체', icon: Globe },
-    { id: 'shadow', name: '그림자경제', icon: EyeOff },
-    { id: 'offshore', name: '조세회피처', icon: Building2 },
-    { id: 'illicit', name: '불법금융', icon: AlertTriangle },
-    { id: 'crypto', name: '암호화폐', icon: Coins },
-    { id: 'physical', name: '현물자산', icon: DollarSign }
-  ];
-
+  // 카테고리별 필터링
   const filteredData = selectedCategory === 'all' 
-    ? shadowEconomyData 
-    : shadowEconomyData.filter(item => item.category === selectedCategory);
+    ? shadowCapitalData 
+    : shadowCapitalData.filter(item => item.category === selectedCategory);
 
-  const totalValue = shadowEconomyData.reduce((sum, item) => sum + item.estimatedValue, 0);
+  // 데이터 새로고침
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setLastRefresh(new Date());
+    setIsRefreshing(false);
+  };
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, []);
+  // 데이터 신선도 계산
+  const getDataFreshness = (lastUpdated: string) => {
+    const now = new Date();
+    const updated = new Date(lastUpdated);
+    const diffMinutes = Math.floor((now.getTime() - updated.getTime()) / (1000 * 60));
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    
+    let status, color, text, timeText;
+    
+    if (diffMinutes < 30) {
+      status = 'fresh';
+      color = 'text-green-700';
+      text = '실시간';
+      timeText = `${diffMinutes}분 전`;
+    } else if (diffMinutes < 120) {
+      status = 'recent';
+      color = 'text-green-600';
+      text = '최신';
+      timeText = `${diffMinutes}분 전`;
+    } else if (diffHours < 6) {
+      status = 'recent';
+      color = 'text-yellow-600';
+      text = '최근';
+      timeText = `${diffHours}시간 전`;
+    } else if (diffHours < 24) {
+      status = 'stale';
+      color = 'text-orange-600';
+      text = '오래됨';
+      timeText = `${diffHours}시간 전`;
+    } else {
+      status = 'outdated';
+      color = 'text-red-600';
+      text = '구식';
+      timeText = `${diffDays}일 전`;
+    }
+    
+    return { status, color, text, timeText };
+  };
 
+  // 신뢰도 아이콘
+  const getReliabilityIcon = (reliability: string) => {
+    switch (reliability) {
+      case 'high': return <CheckCircle className="w-4 h-4 text-green-700" />;
+      case 'medium': return <AlertCircle className="w-4 h-4 text-yellow-700" />;
+      case 'low': return <AlertCircle className="w-4 h-4 text-red-700" />;
+      default: return <AlertCircle className="w-4 h-4 text-gray-700" />;
+    }
+  };
+
+  // 위험도 색상
   const getRiskColor = (riskLevel: string) => {
     switch (riskLevel) {
-      case 'low': return 'text-green-400 bg-green-400/20';
-      case 'medium': return 'text-yellow-400 bg-yellow-400/20';
-      case 'high': return 'text-orange-400 bg-orange-400/20';
-      case 'critical': return 'text-red-400 bg-red-400/20';
-      default: return 'text-gray-400 bg-gray-400/20';
+      case 'low': return 'text-green-700 bg-green-100';
+      case 'medium': return 'text-yellow-700 bg-yellow-100';
+      case 'high': return 'text-red-700 bg-red-100';
+      default: return 'text-gray-700 bg-gray-100';
     }
   };
 
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up': return <TrendingUp className="w-4 h-4 text-red-400" />;
-      case 'down': return <TrendingDown className="w-4 h-4 text-green-400" />;
-      default: return <div className="w-4 h-4 bg-gray-400 rounded-full" />;
+  // 유동성 색상
+  const getLiquidityColor = (liquidity: string) => {
+    switch (liquidity) {
+      case 'high': return 'text-green-700 bg-green-100';
+      case 'medium': return 'text-yellow-700 bg-yellow-100';
+      case 'low': return 'text-red-700 bg-red-100';
+      default: return 'text-gray-700 bg-gray-100';
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="text-center"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full mx-auto mb-4"
-          />
-          <motion.h1
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-3xl font-bold text-white mb-2"
-          >
-            비제도권 자금 추적
-          </motion.h1>
-          <motion.p
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.7 }}
-            className="text-red-200"
-          >
-            그림자 경제를 모니터링합니다
-          </motion.p>
-        </motion.div>
-      </div>
-    );
-  }
+  const formatNumber = (num: number, decimals: number = 1) => {
+    if (num >= 1e12) return `${(num / 1e12).toFixed(decimals)}T`;
+    if (num >= 1e9) return `${(num / 1e9).toFixed(decimals)}B`;
+    if (num >= 1e6) return `${(num / 1e6).toFixed(decimals)}M`;
+    if (num >= 1e3) return `${(num / 1e3).toFixed(decimals)}K`;
+    return num.toFixed(decimals);
+  };
+
+  // 전체 요약 계산
+  const totalValue = shadowCapitalData.reduce((sum, item) => sum + item.estimatedValue, 0);
+  const totalFlow = shadowCapitalData.reduce((sum, item) => sum + item.flow, 0);
+  const avgVolatility = shadowCapitalData.reduce((sum, item) => sum + item.volatility, 0) / shadowCapitalData.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900">
+    <div className={`space-y-6 ${className}`}>
       {/* 헤더 */}
-      <motion.header
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="p-6 border-b border-red-800/30"
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <motion.h1
-            initial={{ x: -50, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-3xl font-bold text-white flex items-center gap-3"
-          >
-            <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <Eye className="w-8 h-8 text-red-400" />
-            </motion.div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <Eye className="w-8 h-8 text-purple-700" />
             비제도권 자금 추적
-          </motion.h1>
-          
-          <motion.div
-            initial={{ x: 50, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="flex items-center gap-4"
-          >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsVisible(!isVisible)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-                isVisible
-                  ? 'bg-red-600 text-white'
-                  : 'bg-red-800/50 text-red-200 hover:bg-red-700/50'
-              }`}
-            >
-              {isVisible ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-              {isVisible ? '공개 모드' : '비공개 모드'}
-            </motion.button>
-          </motion.div>
+          </h2>
+          <p className="text-gray-700 mt-2 font-medium">
+            오프쇼어, 암호화폐, 귀금속 등 비제도권 자금의 실시간 현황
+          </p>
         </div>
-      </motion.header>
-
-      {/* 메인 콘텐츠 */}
-      <main className="max-w-7xl mx-auto p-6">
-        {/* 총합 요약 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-8"
-        >
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-white">비제도권 자금 총합</h2>
-              <motion.div
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="p-2 rounded-lg bg-red-500/20"
-              >
-                <Shield className="w-6 h-6 text-red-400" />
-              </motion.div>
+        
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <div className="text-sm text-gray-700 font-medium">마지막 업데이트</div>
+            <div className="text-gray-900 font-bold">
+              {lastRefresh.toLocaleTimeString('ko-KR')}
             </div>
-            
-            <div className="flex items-baseline gap-2">
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
-                className="text-4xl font-bold text-white"
-              >
-                ${totalValue.toFixed(1)}T
-              </motion.span>
-              <span className="text-lg text-gray-300">추정 규모</span>
-            </div>
-            
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
-              className="text-red-200 text-sm mt-2"
-            >
-              ⚠️ 이는 추정치이며, 실제 규모는 더 클 수 있습니다
-            </motion.p>
           </div>
-        </motion.div>
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 backdrop-blur-lg text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-colors flex items-center gap-2 disabled:opacity-50 border-2 border-blue-600 shadow-lg"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            새로고침
+          </motion.button>
+        </div>
+      </div>
 
-        {/* 카테고리 필터 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-8"
+      {/* 전체 요약 */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-gradient-to-br from-white to-gray-100 backdrop-blur-lg rounded-xl p-6 border-2 border-gray-300 shadow-lg">
+          <div className="flex items-center gap-3 mb-3">
+            <Database className="w-6 h-6 text-blue-700" />
+            <h3 className="text-lg font-bold text-gray-900">총 추정 규모</h3>
+          </div>
+          <div className="text-3xl font-black text-gray-900 mb-2">
+            ${formatNumber(totalValue)}T
+          </div>
+          <div className="text-sm text-gray-700 font-medium">
+            비제도권 자금 추정치
+          </div>
+        </div>
+        
+        <div className="bg-gradient-to-br from-white to-gray-100 backdrop-blur-lg rounded-xl p-6 border-2 border-gray-300 shadow-lg">
+          <div className="flex items-center gap-3 mb-3">
+            <Activity className="w-6 h-6 text-green-700" />
+            <h3 className="text-lg font-bold text-gray-900">순자금 흐름</h3>
+          </div>
+          <div className={`text-3xl font-black mb-2 ${
+            totalFlow >= 0 ? 'text-green-700' : 'text-red-700'
+          }`}>
+            {totalFlow >= 0 ? '+' : ''}${formatNumber(totalFlow)}B
+          </div>
+          <div className="text-sm text-gray-700 font-medium">
+            지난 24시간
+          </div>
+        </div>
+        
+        <div className="bg-gradient-to-br from-white to-gray-100 backdrop-blur-lg rounded-xl p-6 border-2 border-gray-300 shadow-lg">
+          <div className="flex items-center gap-3 mb-3">
+            <Shield className="w-6 h-6 text-yellow-700" />
+            <h3 className="text-lg font-bold text-gray-900">평균 변동성</h3>
+          </div>
+          <div className="text-3xl font-black text-yellow-700 mb-2">
+            {avgVolatility.toFixed(1)}%
+          </div>
+          <div className="text-sm text-gray-700 font-medium">
+            전체 평균
+          </div>
+        </div>
+        
+        <div className="bg-gradient-to-br from-white to-gray-100 backdrop-blur-lg rounded-xl p-6 border-2 border-gray-300 shadow-lg">
+          <div className="flex items-center gap-3 mb-3">
+            <Clock className="w-6 h-6 text-purple-700" />
+            <h3 className="text-lg font-bold text-gray-900">업데이트 주기</h3>
+          </div>
+          <div className="text-3xl font-black text-purple-700 mb-2">
+            24시간
+          </div>
+          <div className="text-sm text-gray-700 font-medium">
+            평균 업데이트 간격
+          </div>
+        </div>
+      </div>
+
+      {/* 카테고리 필터 */}
+      <div className="flex flex-wrap gap-2">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setSelectedCategory('all')}
+          className={`px-4 py-2 rounded-lg font-semibold transition-all backdrop-blur-lg border-2 ${
+            selectedCategory === 'all'
+              ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white border-blue-600 shadow-lg'
+              : 'bg-gradient-to-r from-white to-gray-100 text-gray-800 hover:from-gray-100 hover:to-gray-200 border-gray-400 shadow-md'
+          }`}
         >
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category, index) => (
-              <motion.button
-                key={category.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-                  selectedCategory === category.id
-                    ? 'bg-red-600 text-white'
-                    : 'bg-red-800/50 text-red-200 hover:bg-red-700/50'
-                }`}
-              >
-                <category.icon className="w-4 h-4" />
-                {category.name}
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
+          전체
+        </motion.button>
+        {['offshore', 'crypto', 'precious_metals', 'art', 'real_estate', 'cash', 'other'].map((category) => (
+          <motion.button
+            key={category}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setSelectedCategory(category)}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all backdrop-blur-lg border-2 ${
+              selectedCategory === category
+                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white border-blue-600 shadow-lg'
+                : 'bg-gradient-to-r from-white to-gray-100 text-gray-800 hover:from-gray-100 hover:to-gray-200 border-gray-400 shadow-md'
+            }`}
+          >
+            {category === 'offshore' ? '오프쇼어' :
+             category === 'crypto' ? '암호화폐' :
+             category === 'precious_metals' ? '귀금속' :
+             category === 'art' ? '예술품' :
+             category === 'real_estate' ? '부동산' :
+             category === 'cash' ? '현금' : '기타'}
+          </motion.button>
+        ))}
+      </div>
 
-        {/* 데이터 카드 그리드 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredData.map((item, index) => (
+      {/* 자금 분야별 상세 정보 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredData.map((asset, index) => {
+          const freshness = getDataFreshness(asset.lastUpdated);
+          const AssetIcon = asset.icon;
+          
+          return (
             <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ 
-                delay: index * 0.1,
-                type: "spring",
-                stiffness: 100
-              }}
-              whileHover={{ 
-                scale: 1.05,
-                rotateY: 5,
-                transition: { duration: 0.2 }
-              }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl"
+              key={asset.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-gradient-to-br from-white to-gray-100 backdrop-blur-lg rounded-xl p-6 border-2 border-gray-300 shadow-lg hover:from-gray-50 hover:to-gray-200 transition-all"
             >
+              {/* 헤더 */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <motion.div
-                    animate={{ rotate: [0, 10, -10, 0] }}
-                    transition={{ 
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatDelay: 3
-                    }}
-                    className="p-3 rounded-xl"
-                    style={{ backgroundColor: `${item.color}20` }}
+                  <div 
+                    className="w-12 h-12 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: `${asset.color}20` }}
                   >
-                    <item.icon className="w-6 h-6" style={{ color: item.color }} />
-                  </motion.div>
-                  <h3 className="text-xl font-semibold text-white">{item.name}</h3>
+                    <AssetIcon className="w-6 h-6" style={{ color: asset.color }} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">{asset.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-700 font-medium">{asset.dataSource}</span>
+                      {getReliabilityIcon(asset.reliability)}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {getTrendIcon(item.trend)}
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskColor(item.riskLevel)}`}>
-                    {item.riskLevel.toUpperCase()}
+                
+                <div className="text-right">
+                  <div className={`text-sm font-bold ${freshness.color}`}>
+                    {freshness.text}
+                  </div>
+                  <div className="text-xs text-gray-600 font-medium">
+                    {freshness.timeText}
+                  </div>
+                  <div className="text-xs text-gray-500 font-medium">
+                    {new Date(asset.lastUpdated).toLocaleString('ko-KR')}
+                  </div>
+                </div>
+              </div>
+
+              {/* 주요 지표 */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700 font-semibold">추정 규모</span>
+                  <span className="text-gray-900 font-black text-xl">
+                    ${formatNumber(asset.estimatedValue)}{asset.unit}
                   </span>
                 </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700 font-semibold">변화율</span>
+                  <div className="flex items-center gap-2">
+                    {asset.change >= 0 ? (
+                      <TrendingUp className="w-4 h-4 text-green-700" />
+                    ) : (
+                      <TrendingDown className="w-4 h-4 text-red-700" />
+                    )}
+                    <span className={`font-black ${
+                      asset.change >= 0 ? 'text-green-700' : 'text-red-700'
+                    }`}>
+                      {asset.change >= 0 ? '+' : ''}{asset.change}%
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700 font-semibold">자금 흐름</span>
+                  <span className={`font-black ${
+                    asset.flow >= 0 ? 'text-green-700' : 'text-red-700'
+                  }`}>
+                    {asset.flow >= 0 ? '+' : ''}${formatNumber(asset.flow)}B
+                  </span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700 font-semibold">시장 점유율</span>
+                  <span className="text-gray-900 font-black">{asset.marketShare}%</span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700 font-semibold">변동성</span>
+                  <span className="text-gray-900 font-black">{asset.volatility}%</span>
+                </div>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-baseline gap-2">
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: index * 0.1 + 0.5 }}
-                    className="text-3xl font-bold text-white"
-                  >
-                    ${item.estimatedValue}
-                  </motion.span>
-                  <span className="text-lg text-gray-300">{item.unit}</span>
-                </div>
+              {/* 위험도 및 유동성 */}
+              <div className="flex gap-2 mt-4">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskColor(asset.riskLevel)}`}>
+                  위험도: {asset.riskLevel === 'low' ? '낮음' : asset.riskLevel === 'medium' ? '보통' : '높음'}
+                </span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getLiquidityColor(asset.liquidity)}`}>
+                  유동성: {asset.liquidity === 'high' ? '높음' : asset.liquidity === 'medium' ? '보통' : '낮음'}
+                </span>
+              </div>
 
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.1 + 0.7 }}
-                  className="text-sm text-gray-300"
-                >
-                  {item.description}
-                </motion.p>
-
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: '100%' }}
-                  transition={{ delay: index * 0.1 + 0.9, duration: 1 }}
-                  className="h-1 bg-gray-700 rounded-full overflow-hidden"
-                >
-                  <motion.div
-                    initial={{ x: '-100%' }}
-                    animate={{ x: 0 }}
-                    transition={{ delay: index * 0.1 + 1.1, duration: 0.8 }}
-                    className="h-full rounded-full"
-                    style={{ 
-                      backgroundColor: item.color,
-                      width: `${(item.estimatedValue / totalValue) * 100}%`
-                    }}
-                  />
-                </motion.div>
-
-                <div className="flex justify-between text-xs text-gray-400">
-                  <span>마지막 업데이트: {item.lastUpdate}</span>
-                  <span>위험도: {item.riskLevel}</span>
-                </div>
+              {/* 설명 */}
+              <div className="mt-4 pt-4 border-t-2 border-gray-300">
+                <p className="text-sm text-gray-700 font-medium">{asset.description}</p>
               </div>
             </motion.div>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        {/* 경고 메시지 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="mt-8"
-        >
-          <div className="bg-red-500/10 backdrop-blur-lg rounded-2xl p-6 border border-red-500/30 shadow-2xl">
-            <div className="flex items-center gap-3 mb-3">
-              <AlertTriangle className="w-6 h-6 text-red-400" />
-              <h3 className="text-lg font-bold text-red-400">중요 고지사항</h3>
+      {/* 데이터 소스 정보 */}
+      <div className="bg-gradient-to-br from-white to-gray-100 backdrop-blur-lg rounded-xl p-6 border-2 border-gray-300 shadow-lg">
+        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <Database className="w-5 h-5 text-blue-700" />
+          데이터 소스 정보
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-2 p-3 bg-white rounded-lg border border-gray-200">
+            <h4 className="text-gray-900 font-bold">Tax Justice Network</h4>
+            <p className="text-sm text-gray-700 font-medium">오프쇼어 자금 추적 및 분석</p>
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-yellow-700" />
+              <span className="text-xs text-yellow-700 font-semibold">보통 신뢰도</span>
             </div>
-            <p className="text-red-200 text-sm">
-              이 데이터는 공개된 연구 자료와 추정치를 바탕으로 한 것으로, 
-              실제 비제도권 자금의 규모와 흐름은 더 복잡하고 정확한 측정이 어렵습니다. 
-              투자 결정에 참고용으로만 사용하시기 바랍니다.
-            </p>
           </div>
-        </motion.div>
-      </main>
+          
+          <div className="space-y-2 p-3 bg-white rounded-lg border border-gray-200">
+            <h4 className="text-gray-900 font-bold">Chainalysis</h4>
+            <p className="text-sm text-gray-700 font-medium">암호화폐 블록체인 분석</p>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-green-700" />
+              <span className="text-xs text-green-700 font-semibold">높은 신뢰도</span>
+            </div>
+          </div>
+          
+          <div className="space-y-2 p-3 bg-white rounded-lg border border-gray-200">
+            <h4 className="text-gray-900 font-bold">World Gold Council</h4>
+            <p className="text-sm text-gray-700 font-medium">귀금속 시장 데이터</p>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-green-700" />
+              <span className="text-xs text-green-700 font-semibold">높은 신뢰도</span>
+            </div>
+          </div>
+          
+          <div className="space-y-2 p-3 bg-white rounded-lg border border-gray-200">
+            <h4 className="text-gray-900 font-bold">Art Basel</h4>
+            <p className="text-sm text-gray-700 font-medium">예술품 시장 분석</p>
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-700" />
+              <span className="text-xs text-red-700 font-semibold">낮은 신뢰도</span>
+            </div>
+          </div>
+          
+          <div className="space-y-2 p-3 bg-white rounded-lg border border-gray-200">
+            <h4 className="text-gray-900 font-bold">Savills</h4>
+            <p className="text-sm text-gray-700 font-medium">고가 부동산 시장 데이터</p>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-green-700" />
+              <span className="text-xs text-green-700 font-semibold">높은 신뢰도</span>
+            </div>
+          </div>
+          
+          <div className="space-y-2 p-3 bg-white rounded-lg border border-gray-200">
+            <h4 className="text-gray-900 font-bold">IMF</h4>
+            <p className="text-sm text-gray-700 font-medium">국제통화기금 경제 데이터</p>
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-yellow-700" />
+              <span className="text-xs text-yellow-700 font-semibold">보통 신뢰도</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
