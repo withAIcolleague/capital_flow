@@ -11,10 +11,32 @@ export interface APIConfig {
   status?: 'success' | 'error' | 'unknown';
 }
 
+// API 테스트 결과 타입
+export interface APITestResult {
+  success: boolean;
+  status?: number;
+  statusText?: string;
+  error?: string;
+}
+
+// API 사용 통계 타입
+export interface APIUsageStats {
+  id: string;
+  name: string;
+  category: string;
+  isActive: boolean;
+  lastTested?: string;
+  status?: 'success' | 'error' | 'unknown';
+}
+
 // 사용자 정의 API 서비스
 export class CustomAPIService {
   private static instance: CustomAPIService;
   private apis: APIConfig[] = [];
+
+  private constructor() {
+    this.loadAPIs();
+  }
 
   static getInstance(): CustomAPIService {
     if (!CustomAPIService.instance) {
@@ -24,11 +46,13 @@ export class CustomAPIService {
   }
 
   // 저장된 API 목록 로드
-  loadAPIs() {
+  loadAPIs(): void {
     try {
-      const savedAPIs = localStorage.getItem('custom-apis');
-      if (savedAPIs) {
-        this.apis = JSON.parse(savedAPIs);
+      if (typeof window !== 'undefined') {
+        const savedAPIs = localStorage.getItem('custom-apis');
+        if (savedAPIs) {
+          this.apis = JSON.parse(savedAPIs);
+        }
       }
     } catch (error) {
       console.error('Error loading custom APIs:', error);
@@ -36,8 +60,19 @@ export class CustomAPIService {
     }
   }
 
+  // API 목록 저장
+  saveAPIs(): void {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('custom-apis', JSON.stringify(this.apis));
+      }
+    } catch (error) {
+      console.error('Error saving custom APIs:', error);
+    }
+  }
+
   // API 데이터 가져오기
-  async fetchFromAPI(apiId: string, endpoint: string, params: Record<string, any> = {}) {
+  async fetchFromAPI(apiId: string, endpoint: string, params: Record<string, any> = {}): Promise<any> {
     this.loadAPIs();
     const api = this.apis.find(a => a.id === apiId);
     
@@ -77,21 +112,21 @@ export class CustomAPIService {
   }
 
   // Alpha Vantage API 사용 예시
-  async getAlphaVantageData(symbol: string, function: string = 'GLOBAL_QUOTE') {
+  async getAlphaVantageData(symbol: string, functionName: string = 'GLOBAL_QUOTE'): Promise<any> {
     const api = this.apis.find(a => a.name === 'Alpha Vantage');
     if (!api) {
       throw new Error('Alpha Vantage API not configured');
     }
 
     return this.fetchFromAPI(api.id, '', {
-      function,
+      function: functionName,
       symbol,
       apikey: api.apiKey
     });
   }
 
   // Yahoo Finance API 사용 예시
-  async getYahooFinanceData(symbol: string) {
+  async getYahooFinanceData(symbol: string): Promise<any> {
     const api = this.apis.find(a => a.name === 'Yahoo Finance');
     if (!api) {
       throw new Error('Yahoo Finance API not configured');
@@ -104,7 +139,7 @@ export class CustomAPIService {
   }
 
   // CoinGecko Pro API 사용 예시
-  async getCoinGeckoProData(coinId: string) {
+  async getCoinGeckoProData(coinId: string): Promise<any> {
     const api = this.apis.find(a => a.name === 'CoinGecko Pro');
     if (!api) {
       throw new Error('CoinGecko Pro API not configured');
@@ -121,7 +156,7 @@ export class CustomAPIService {
   }
 
   // FRED API 사용 예시
-  async getFREDData(seriesId: string) {
+  async getFREDData(seriesId: string): Promise<any> {
     const api = this.apis.find(a => a.name === 'FRED (Federal Reserve)');
     if (!api) {
       throw new Error('FRED API not configured');
@@ -141,7 +176,7 @@ export class CustomAPIService {
   }
 
   // API 상태 확인
-  async testAPI(apiId: string) {
+  async testAPI(apiId: string): Promise<APITestResult> {
     this.loadAPIs();
     const api = this.apis.find(a => a.id === apiId);
     
@@ -173,7 +208,7 @@ export class CustomAPIService {
   }
 
   // API 사용 통계
-  getAPIUsageStats() {
+  getAPIUsageStats(): APIUsageStats[] {
     this.loadAPIs();
     return this.apis.map(api => ({
       id: api.id,
@@ -190,6 +225,50 @@ export class CustomAPIService {
     this.loadAPIs();
     return this.apis;
   }
+
+  // API 추가
+  addAPI(api: Omit<APIConfig, 'id'>): string {
+    const newAPI: APIConfig = {
+      ...api,
+      id: Date.now().toString()
+    };
+    this.apis.push(newAPI);
+    this.saveAPIs();
+    return newAPI.id;
+  }
+
+  // API 업데이트
+  updateAPI(id: string, updates: Partial<APIConfig>): boolean {
+    const index = this.apis.findIndex(api => api.id === id);
+    if (index === -1) return false;
+    
+    this.apis[index] = { ...this.apis[index], ...updates };
+    this.saveAPIs();
+    return true;
+  }
+
+  // API 삭제
+  deleteAPI(id: string): boolean {
+    const index = this.apis.findIndex(api => api.id === id);
+    if (index === -1) return false;
+    
+    this.apis.splice(index, 1);
+    this.saveAPIs();
+    return true;
+  }
+
+  // API ID로 찾기
+  getAPIById(id: string): APIConfig | undefined {
+    this.loadAPIs();
+    return this.apis.find(api => api.id === id);
+  }
+
+  // API 이름으로 찾기
+  getAPIByName(name: string): APIConfig | undefined {
+    this.loadAPIs();
+    return this.apis.find(api => api.name === name);
+  }
 }
 
+// 싱글톤 인스턴스 내보내기
 export const customAPIService = CustomAPIService.getInstance();

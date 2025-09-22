@@ -15,18 +15,7 @@ import {
   AlertTriangle,
   Info
 } from 'lucide-react';
-
-interface APIConfig {
-  id: string;
-  name: string;
-  baseUrl: string;
-  apiKey: string;
-  description: string;
-  category: 'financial' | 'crypto' | 'economic' | 'other';
-  isActive: boolean;
-  lastTested?: string;
-  status?: 'success' | 'error' | 'unknown';
-}
+import { APIConfig } from '../services/customAPIService';
 
 export default function APISettings() {
   const [apis, setApis] = useState<APIConfig[]>([]);
@@ -52,7 +41,7 @@ export default function APISettings() {
       baseUrl: 'https://www.alphavantage.co/query',
       description: '주식, 외환, 암호화폐 데이터',
       category: 'financial' as const,
-      exampleKey: 'YOUR_API_KEY',
+      exampleKey: '6BM662UT3RN9UIBE',
       pricing: {
         free: '5 calls/min, 500 calls/day',
         premium: '$49.99/month - 75 calls/min, 30 calls/sec',
@@ -87,7 +76,7 @@ export default function APISettings() {
       baseUrl: 'https://api.stlouisfed.org/fred',
       description: '미국 경제 데이터',
       category: 'economic' as const,
-      exampleKey: 'YOUR_FRED_API_KEY',
+      exampleKey: 'a80189315bd5dcab43e2a94caffb68df',
       pricing: {
         free: '120 calls/min, 무제한 일일 호출',
         note: 'FRED API는 완전 무료입니다. API 키만 등록하면 됩니다.'
@@ -98,7 +87,7 @@ export default function APISettings() {
       baseUrl: 'https://www.quandl.com/api/v3',
       description: '금융 및 경제 데이터',
       category: 'financial' as const,
-      exampleKey: 'YOUR_QUANDL_API_KEY',
+      exampleKey: '5EpP4EX1dzbsurQ3xjsw',
       pricing: {
         free: '50 calls/day',
         basic: '$50/month - 2,000 calls/day',
@@ -111,7 +100,7 @@ export default function APISettings() {
       baseUrl: 'https://api.polygon.io',
       description: '실시간 주식, 옵션, 외환 데이터',
       category: 'financial' as const,
-      exampleKey: 'YOUR_POLYGON_API_KEY',
+      exampleKey: 'dlEuZrQUoiCbqxko74MJOM5TiVP7kusp',
       pricing: {
         free: '5 calls/min',
         starter: '$99/month - 5 calls/min',
@@ -136,7 +125,7 @@ export default function APISettings() {
       baseUrl: 'https://finnhub.io/api/v1',
       description: '주식, 암호화폐, 뉴스, 센티먼트 데이터',
       category: 'financial' as const,
-      exampleKey: 'YOUR_FINNHUB_API_KEY',
+      exampleKey: 'd38esn9r01qlbdj56370d38esn9r01qlbdj5637g',
       pricing: {
         free: '60 calls/min',
         basic: '$9/month - 300 calls/min',
@@ -161,7 +150,7 @@ export default function APISettings() {
       baseUrl: 'https://pro-api.coinmarketcap.com/v1',
       description: '암호화폐 시장 데이터',
       category: 'crypto' as const,
-      exampleKey: 'YOUR_CMC_API_KEY',
+      exampleKey: 'd64d7af7548b5f7ac4ebaf453c56dc33e9e5a150fd1b3db588bd6aa3770f325f',
       pricing: {
         free: '10,000 calls/month',
         basic: '$29/month - 100,000 calls/month',

@@ -10,7 +10,7 @@ import {
   Clock,
   ExternalLink
 } from 'lucide-react';
-import { customAPIService, APIConfig } from '../services/customAPIService';
+import { customAPIService, APIConfig, CustomAPIService } from '../services/customAPIService';
 
 interface APIDataDisplayProps {
   className?: string;
@@ -27,22 +27,23 @@ export default function APIDataDisplay({ className = '' }: APIDataDisplayProps) 
       setLoading(true);
       setError(null);
       
-      const activeAPIs = customAPIService.getActiveAPIs();
+      const apiService: CustomAPIService = customAPIService;
+      const activeAPIs = apiService.getActiveAPIs();
       const dataPromises = activeAPIs.map(async (api: APIConfig) => {
         try {
           let data;
           switch (api.name) {
             case 'Alpha Vantage':
-              data = await customAPIService.getAlphaVantageData('AAPL');
+              data = await apiService.getAlphaVantageData('AAPL');
               break;
             case 'Yahoo Finance':
-              data = await customAPIService.getYahooFinanceData('AAPL');
+              data = await apiService.getYahooFinanceData('AAPL');
               break;
             case 'CoinGecko Pro':
-              data = await customAPIService.getCoinGeckoProData('bitcoin');
+              data = await apiService.getCoinGeckoProData('bitcoin');
               break;
             case 'FRED (Federal Reserve)':
-              data = await customAPIService.getFREDData('GDP');
+              data = await apiService.getFREDData('GDP');
               break;
             default:
               data = { message: 'No specific data available' };
