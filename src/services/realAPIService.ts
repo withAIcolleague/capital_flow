@@ -16,14 +16,17 @@ export class RealAPIService {
 
   // API 키 초기화
   private loadAPIKeys() {
+    // Next.js 환경에서 process.env 사용
+    const env = (globalThis as any).process?.env || {};
+    
     this.apiKeys = {
-      alphaVantage: process.env.NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY || '6BM662UT3RN9UIBE',
-      fred: process.env.NEXT_PUBLIC_FRED_API_KEY || 'a80189315bd5dcab43e2a94caffb68df',
-      coinGecko: process.env.NEXT_PUBLIC_COINGECKO_API_KEY || 'demo',
-      nasdaq: process.env.NEXT_PUBLIC_NASDAQ_API_KEY || '5EpP4EX1dzbsurQ3xjsw',
-      polygon: process.env.NEXT_PUBLIC_POLYGON_API_KEY || 'dlEuZrQUoiCbqxko74MJOM5TiVP7kusp',
-      finnhub: process.env.NEXT_PUBLIC_FINNHUB_API_KEY || 'd38esn9r01qlbdj56370d38esn9r01qlbdj5637g',
-      coindesk: process.env.NEXT_PUBLIC_COINDESK_API_KEY || 'd64d7af7548b5f7ac4ebaf453c56dc33e9e5a150fd1b3db588bd6aa3770f325f',
+      alphaVantage: env.NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY || '6BM662UT3RN9UIBE',
+      fred: env.NEXT_PUBLIC_FRED_API_KEY || 'a80189315bd5dcab43e2a94caffb68df',
+      coinGecko: env.NEXT_PUBLIC_COINGECKO_API_KEY || 'demo',
+      nasdaq: env.NEXT_PUBLIC_NASDAQ_API_KEY || '5EpP4EX1dzbsurQ3xjsw',
+      polygon: env.NEXT_PUBLIC_POLYGON_API_KEY || 'dlEuZrQUoiCbqxko74MJOM5TiVP7kusp',
+      finnhub: env.NEXT_PUBLIC_FINNHUB_API_KEY || 'd38esn9r01qlbdj56370d38esn9r01qlbdj5637g',
+      coindesk: env.NEXT_PUBLIC_COINDESK_API_KEY || 'd64d7af7548b5f7ac4ebaf453c56dc33e9e5a150fd1b3db588bd6aa3770f325f',
       yahooFinance: 'no-key-required'
     };
     this.loadSavedAPIKeys();
@@ -266,7 +269,11 @@ export class RealAPIService {
   }
 
   // API 상태 확인 (모의 데이터로 상태만 확인)
-  async checkAPIStatus(apiName: string) {
+  async checkAPIStatus(apiName: string): Promise<{
+    status: 'active' | 'error' | 'unknown';
+    message: string;
+    responseTime?: number;
+  }> {
     try {
       // 실제 API 호출 대신 API 키 존재 여부와 기본 상태만 확인
       const hasApiKey = this.apiKeys[apiName] && this.apiKeys[apiName] !== 'demo';
@@ -274,76 +281,95 @@ export class RealAPIService {
       switch (apiName) {
         case 'alphaVantage':
           return { 
-            status: hasApiKey ? 'active' : 'error', 
+            status: hasApiKey ? 'active' as const : 'error' as const, 
             message: hasApiKey ? 'Alpha Vantage API 정상 작동' : 'API 키가 필요합니다',
             responseTime: Math.floor(Math.random() * 200) + 100
           };
         case 'fred':
           return { 
-            status: hasApiKey ? 'active' : 'error', 
+            status: hasApiKey ? 'active' as const : 'error' as const, 
             message: hasApiKey ? 'FRED API 정상 작동' : 'API 키가 필요합니다',
             responseTime: Math.floor(Math.random() * 300) + 150
           };
         case 'coinGecko':
           return { 
-            status: 'active', 
+            status: 'active' as const, 
             message: 'CoinGecko API 정상 작동 (API 키 불필요)',
             responseTime: Math.floor(Math.random() * 150) + 80
           };
         case 'yahooFinance':
           return { 
-            status: 'active', 
+            status: 'active' as const, 
             message: 'Yahoo Finance API 정상 작동 (비공식 API)',
             responseTime: Math.floor(Math.random() * 250) + 120
           };
         case 'nasdaq':
           return { 
-            status: hasApiKey ? 'active' : 'error', 
+            status: hasApiKey ? 'active' as const : 'error' as const, 
             message: hasApiKey ? 'Nasdaq Data Link API 정상 작동' : 'API 키가 필요합니다',
             responseTime: Math.floor(Math.random() * 400) + 200
           };
         case 'polygon':
           return { 
-            status: hasApiKey ? 'active' : 'error', 
+            status: hasApiKey ? 'active' as const : 'error' as const, 
             message: hasApiKey ? 'Polygon.io API 정상 작동' : 'API 키가 필요합니다',
             responseTime: Math.floor(Math.random() * 180) + 90
           };
         case 'finnhub':
           return { 
-            status: hasApiKey ? 'active' : 'error', 
+            status: hasApiKey ? 'active' as const : 'error' as const, 
             message: hasApiKey ? 'Finnhub API 정상 작동' : 'API 키가 필요합니다',
             responseTime: Math.floor(Math.random() * 220) + 110
           };
         case 'coindesk':
           return { 
-            status: 'active', 
+            status: 'active' as const, 
             message: 'CoinDesk API 정상 작동 (API 키 불필요)',
             responseTime: Math.floor(Math.random() * 160) + 70
           };
         default:
-          return { status: 'unknown', message: '알 수 없는 API' };
+          return { status: 'unknown' as const, message: '알 수 없는 API' };
       }
     } catch (error) {
       return { 
-        status: 'error', 
+        status: 'error' as const, 
         message: `API 오류: ${error instanceof Error ? error.message : 'Unknown error'}` 
       };
     }
   }
 
   // 모든 API 상태 확인
-  async checkAllAPIStatus() {
+  async checkAllAPIStatus(): Promise<Array<{
+    name: string;
+    status: 'active' | 'error' | 'unknown';
+    message: string;
+    responseTime?: number;
+    lastChecked?: string;
+  }>> {
     const apis = ['alphaVantage', 'fred', 'coinGecko', 'yahooFinance', 'nasdaq', 'polygon', 'finnhub', 'coindesk'];
-    const results = await Promise.allSettled(
-      apis.map(api => this.checkAPIStatus(api))
+    
+    // Promise.allSettled 대신 개별적으로 처리
+    const results = await Promise.all(
+      apis.map(async (api) => {
+        try {
+          const result = await this.checkAPIStatus(api);
+          return { status: 'fulfilled' as const, value: result };
+        } catch (error) {
+          return { 
+            status: 'rejected' as const, 
+            reason: error instanceof Error ? error.message : 'Unknown error' 
+          };
+        }
+      })
     );
     
     return apis.map((api, index) => ({
       name: api,
       ...(results[index].status === 'fulfilled' 
         ? results[index].value 
-        : { status: 'error', message: 'API 확인 실패' }
-      )
+        : { status: 'error' as const, message: 'API 확인 실패' }
+      ),
+      lastChecked: new Date().toISOString()
     }));
   }
 
