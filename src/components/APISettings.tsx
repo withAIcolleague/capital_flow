@@ -383,56 +383,6 @@ export default function APISettings() {
                           🆓 무료: {template.pricing.free}
                         </div>
                       )}
-                      {template.pricing.premium && (
-                        <div className="text-xs text-blue-400">
-                          💎 프리미엄: {template.pricing.premium}
-                        </div>
-                      )}
-                      {template.pricing.basic && (
-                        <div className="text-xs text-blue-400">
-                          📈 기본: {template.pricing.basic}
-                        </div>
-                      )}
-                      {template.pricing.pro && (
-                        <div className="text-xs text-purple-400">
-                          ⭐ Pro: {template.pricing.pro}
-                        </div>
-                      )}
-                      {template.pricing.enterprise && (
-                        <div className="text-xs text-yellow-400">
-                          🏢 엔터프라이즈: {template.pricing.enterprise}
-                        </div>
-                      )}
-                      {template.pricing.paid && (
-                        <div className="text-xs text-blue-400">
-                          💳 유료: {template.pricing.paid}
-                        </div>
-                      )}
-                      {template.pricing.starter && (
-                        <div className="text-xs text-blue-400">
-                          🚀 스타터: {template.pricing.starter}
-                        </div>
-                      )}
-                      {template.pricing.developer && (
-                        <div className="text-xs text-blue-400">
-                          👨‍💻 개발자: {template.pricing.developer}
-                        </div>
-                      )}
-                      {template.pricing.advanced && (
-                        <div className="text-xs text-blue-400">
-                          🔥 고급: {template.pricing.advanced}
-                        </div>
-                      )}
-                      {template.pricing.standard && (
-                        <div className="text-xs text-blue-400">
-                          📊 스탠다드: {template.pricing.standard}
-                        </div>
-                      )}
-                      {template.pricing.professional && (
-                        <div className="text-xs text-blue-400">
-                          🎯 프로페셔널: {template.pricing.professional}
-                        </div>
-                      )}
                       {template.pricing.note && (
                         <div className="text-xs text-yellow-400 italic">
                           ⚠️ {template.pricing.note}
