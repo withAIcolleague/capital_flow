@@ -47,115 +47,115 @@ export default function InstitutionalCapitalOverview({ className = '' }: Institu
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
-  // 제도권 자금 데이터 (실제 데이터 소스 기반)
+  // 제도권 자금 데이터 (2024/2025 연간보고서 기준 추정치)
   const institutionalData: InstitutionalData[] = [
     {
       id: 'equity',
       name: '글로벌 주식 시장',
       category: 'equity',
-      value: 126.7,
+      value: 111.4,
       unit: 'T',
-      change: -2.3,
-      flow: -38.66,
+      change: 14.8,
+      flow: 125.5,
       color: '#3B82F6',
       icon: BarChart3,
-      lastUpdated: '2024-12-01T09:30:00Z',
-      dataSource: 'SIFMA',
+      lastUpdated: '2025-01-31T09:00:00Z',  // WFE 2024 연간보고서
+      dataSource: 'WFE',
       reliability: 'high',
-      nextUpdate: '2024-12-02T09:30:00Z',
-      trend: 'down',
+      nextUpdate: '2026-01-31T09:00:00Z',
+      trend: 'up',
       volatility: 18.5,
-      marketShare: 23.2
+      marketShare: 17.6
     },
     {
       id: 'bonds',
       name: '글로벌 채권 시장',
       category: 'bonds',
-      value: 145.1,
+      value: 140.3,
       unit: 'T',
-      change: 1.8,
-      flow: 12.4,
+      change: -1.2,
+      flow: -45.8,
       color: '#10B981',
       icon: Building2,
-      lastUpdated: '2024-12-01T10:00:00Z',
+      lastUpdated: '2025-03-10T10:00:00Z',  // BIS Q4 2024 보고서
       dataSource: 'BIS',
       reliability: 'high',
-      nextUpdate: '2024-12-02T10:00:00Z',
-      trend: 'up',
+      nextUpdate: '2025-09-15T10:00:00Z',
+      trend: 'down',
       volatility: 8.2,
-      marketShare: 26.5
+      marketShare: 22.2
     },
     {
       id: 'real_estate',
       name: '글로벌 부동산',
       category: 'real_estate',
-      value: 286.9,
+      value: 360.0,
       unit: 'T',
-      change: 3.2,
-      flow: 5.7,
+      change: 2.1,
+      flow: 12.3,
       color: '#F59E0B',
       icon: Building2,
-      lastUpdated: '2024-11-30T14:00:00Z',
+      lastUpdated: '2025-02-20T14:00:00Z',  // Savills 2024 연간 추정치
       dataSource: 'Savills',
       reliability: 'high',
-      nextUpdate: '2024-12-07T14:00:00Z',
+      nextUpdate: '2026-02-20T14:00:00Z',
       trend: 'up',
       volatility: 12.8,
-      marketShare: 52.4
+      marketShare: 57.0
     },
     {
       id: 'cash',
-      name: '글로벌 현금/머니마켓',
+      name: '글로벌 머니마켓펀드',
       category: 'cash',
-      value: 45.2,
+      value: 9.8,
       unit: 'T',
-      change: -1.1,
-      flow: -15.3,
+      change: 12.4,
+      flow: 185.4,
       color: '#8B5CF6',
       icon: DollarSign,
-      lastUpdated: '2024-12-01T08:00:00Z',
-      dataSource: 'EPFR',
-      reliability: 'medium',
-      nextUpdate: '2024-12-02T08:00:00Z',
-      trend: 'down',
+      lastUpdated: '2025-04-01T08:00:00Z',  // ICI 2025 Q1 데이터
+      dataSource: 'ICI',
+      reliability: 'high',
+      nextUpdate: '2025-07-01T08:00:00Z',
+      trend: 'up',
       volatility: 5.1,
-      marketShare: 8.3
+      marketShare: 1.5
     },
     {
       id: 'commodities',
       name: '글로벌 원자재',
       category: 'commodities',
-      value: 12.8,
+      value: 9.8,
       unit: 'T',
-      change: 4.5,
-      flow: 2.1,
+      change: 8.3,
+      flow: 8.2,
       color: '#EF4444',
       icon: Coins,
-      lastUpdated: '2024-12-01T11:30:00Z',
-      dataSource: 'Bloomberg',
+      lastUpdated: '2025-01-15T11:00:00Z',  // WGC + EIA 2024 연간 집계
+      dataSource: 'WGC/EIA',
       reliability: 'medium',
-      nextUpdate: '2024-12-02T11:30:00Z',
+      nextUpdate: '2025-07-15T11:00:00Z',
       trend: 'up',
       volatility: 25.3,
-      marketShare: 2.3
+      marketShare: 1.5
     },
     {
       id: 'fdi',
-      name: '직접투자(FDI)',
+      name: '해외직접투자(FDI)',
       category: 'fdi',
-      value: 1.5,
+      value: 1.3,
       unit: 'T',
-      change: -0.8,
-      flow: -0.3,
+      change: -4.0,
+      flow: -50.0,
       color: '#06B6D4',
       icon: Globe,
-      lastUpdated: '2024-11-29T16:00:00Z',
+      lastUpdated: '2024-06-20T16:00:00Z',  // UNCTAD WIR 2024 연간보고서
       dataSource: 'UNCTAD',
       reliability: 'high',
-      nextUpdate: '2024-12-06T16:00:00Z',
+      nextUpdate: '2025-06-20T16:00:00Z',
       trend: 'down',
       volatility: 15.7,
-      marketShare: 0.3
+      marketShare: 0.2
     }
   ];
 
@@ -281,10 +281,10 @@ export default function InstitutionalCapitalOverview({ className = '' }: Institu
             <h3 className="text-lg font-bold text-gray-900">총 자산 규모</h3>
           </div>
           <div className="text-3xl font-black text-gray-900 mb-2">
-            $618.2T
+            $632.6T
           </div>
           <div className="text-sm text-gray-700 font-medium">
-            전 세계 제도권 자금
+            전 세계 제도권 자금 (2024/25 추정)
           </div>
         </div>
         
@@ -320,10 +320,10 @@ export default function InstitutionalCapitalOverview({ className = '' }: Institu
             <h3 className="text-lg font-bold text-gray-900">업데이트 주기</h3>
           </div>
           <div className="text-3xl font-black text-purple-700 mb-2">
-            15분
+            연/분기
           </div>
           <div className="text-sm text-gray-700 font-medium">
-            평균 업데이트 간격
+            데이터 출처별 업데이트 주기
           </div>
         </div>
       </div>
@@ -456,14 +456,14 @@ export default function InstitutionalCapitalOverview({ className = '' }: Institu
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="space-y-2 p-3 bg-white rounded-lg border border-gray-200">
-            <h4 className="text-gray-900 font-bold">SIFMA</h4>
-            <p className="text-sm text-gray-700 font-medium">미국 증권산업금융협회 - 주식/채권 데이터</p>
+            <h4 className="text-gray-900 font-bold">WFE</h4>
+            <p className="text-sm text-gray-700 font-medium">세계거래소연맹 - 글로벌 주식시장 시총</p>
             <div className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-green-700" />
               <span className="text-xs text-green-700 font-semibold">높은 신뢰도</span>
             </div>
             <div className="text-xs text-gray-600 font-medium">
-              업데이트: 15분마다
+              업데이트: 연 1회 (1월)
             </div>
           </div>
           
@@ -492,14 +492,14 @@ export default function InstitutionalCapitalOverview({ className = '' }: Institu
           </div>
           
           <div className="space-y-2 p-3 bg-white rounded-lg border border-gray-200">
-            <h4 className="text-gray-900 font-bold">EPFR</h4>
-            <p className="text-sm text-gray-700 font-medium">펀드 플로우 데이터 - 현금/머니마켓</p>
+            <h4 className="text-gray-900 font-bold">ICI</h4>
+            <p className="text-sm text-gray-700 font-medium">미국투자회사협회 - 글로벌 머니마켓펀드</p>
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-yellow-700" />
-              <span className="text-xs text-yellow-700 font-semibold">보통 신뢰도</span>
+              <CheckCircle className="w-4 h-4 text-green-700" />
+              <span className="text-xs text-green-700 font-semibold">높은 신뢰도</span>
             </div>
             <div className="text-xs text-gray-600 font-medium">
-              업데이트: 12시간마다
+              업데이트: 분기별
             </div>
           </div>
           
@@ -516,14 +516,14 @@ export default function InstitutionalCapitalOverview({ className = '' }: Institu
           </div>
           
           <div className="space-y-2 p-3 bg-white rounded-lg border border-gray-200">
-            <h4 className="text-gray-900 font-bold">Bloomberg</h4>
-            <p className="text-sm text-gray-700 font-medium">원자재 가격 및 거래 데이터</p>
+            <h4 className="text-gray-900 font-bold">WGC / EIA</h4>
+            <p className="text-sm text-gray-700 font-medium">세계금협의회 + 미에너지부 - 원자재 데이터</p>
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-yellow-700" />
               <span className="text-xs text-yellow-700 font-semibold">보통 신뢰도</span>
             </div>
             <div className="text-xs text-gray-600 font-medium">
-              업데이트: 30분마다
+              업데이트: 반기별
             </div>
           </div>
         </div>

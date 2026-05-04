@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Bitcoin, 
-  TrendingUp, 
+import {
+  Bitcoin,
+  TrendingUp,
   TrendingDown,
   ArrowRight,
   ArrowLeft,
@@ -19,7 +19,6 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
-import { realAPIService } from '../services/realAPIService';
 
 interface CryptoFlowData {
   id: string;
@@ -39,100 +38,63 @@ interface CryptoFlowData {
   reliability: 'high' | 'medium' | 'low';
 }
 
+const COIN_STATIC: Record<string, {
+  category: 'major' | 'alt' | 'defi' | 'privacy';
+  color: string;
+  icon: any;
+  riskLevel: 'low' | 'medium' | 'high';
+  reliability: 'high' | 'medium' | 'low';
+}> = {
+  bitcoin:     { category: 'major', color: '#F7931A', icon: Bitcoin,   riskLevel: 'medium', reliability: 'high' },
+  ethereum:    { category: 'major', color: '#627EEA', icon: Coins,     riskLevel: 'medium', reliability: 'high' },
+  binancecoin: { category: 'major', color: '#F3BA2F', icon: Circle,    riskLevel: 'high',   reliability: 'high' },
+  cardano:     { category: 'alt',   color: '#0033AD', icon: Shield,    riskLevel: 'high',   reliability: 'medium' },
+  solana:      { category: 'defi',  color: '#9945FF', icon: Activity,  riskLevel: 'medium', reliability: 'high' },
+};
+
 export default function CryptoFlowTracker() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('24h');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [cryptoData, setCryptoData] = useState<CryptoFlowData[]>([]);
+  const [totalMarketCapGlobal, setTotalMarketCapGlobal] = useState(0);
+  const [totalVolumeGlobal, setTotalVolumeGlobal] = useState(0);
 
-  const cryptoData: CryptoFlowData[] = [
-    {
-      id: 'bitcoin',
-      name: 'Bitcoin',
-      symbol: 'BTC',
-      marketCap: 1.2,
-      price: 65000,
-      change24h: 2.5,
-      volume24h: 28.5,
-      flow: 'in',
-      riskLevel: 'medium',
-      category: 'major',
-      color: '#F7931A',
-      icon: Bitcoin,
-      lastUpdated: '2024-12-01T12:00:00Z',
-      dataSource: 'CoinGecko',
-      reliability: 'high'
-    },
-    {
-      id: 'ethereum',
-      name: 'Ethereum',
-      symbol: 'ETH',
-      marketCap: 0.4,
-      price: 3500,
-      change24h: -1.2,
-      volume24h: 15.2,
-      flow: 'out',
-      riskLevel: 'medium',
-      category: 'major',
-      color: '#627EEA',
-      icon: Coins,
-      lastUpdated: '2024-12-01T12:00:00Z',
-      dataSource: 'CoinGecko',
-      reliability: 'high'
-    },
-    {
-      id: 'binance',
-      name: 'Binance Coin',
-      symbol: 'BNB',
-      marketCap: 0.08,
-      price: 320,
-      change24h: 3.8,
-      volume24h: 2.1,
-      flow: 'in',
-      riskLevel: 'high',
-      category: 'major',
-      color: '#F3BA2F',
-      icon: Circle,
-      lastUpdated: '2024-12-01T12:00:00Z',
-      dataSource: 'CoinGecko',
-      reliability: 'high'
-    },
-    {
-      id: 'cardano',
-      name: 'Cardano',
-      symbol: 'ADA',
-      marketCap: 0.05,
-      price: 0.45,
-      change24h: -2.1,
-      volume24h: 1.8,
-      flow: 'out',
-      riskLevel: 'high',
-      category: 'alt',
-      color: '#0033AD',
-      icon: Shield,
-      lastUpdated: '2024-12-01T12:00:00Z',
-      dataSource: 'CoinGecko',
-      reliability: 'medium'
-    },
-    {
-      id: 'solana',
-      name: 'Solana',
-      symbol: 'SOL',
-      marketCap: 0.03,
-      price: 18.5,
-      change24h: -3.2,
-      volume24h: 2.1,
-      flow: 'out',
-      riskLevel: 'low',
-      category: 'defi',
-      color: '#2A5ADA',
-      icon: Activity,
-      lastUpdated: '2024-12-01T12:00:00Z',
-      dataSource: 'CoinGecko',
-      reliability: 'high'
+  const fetchCryptoData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/crypto-data');
+      if (!res.ok) throw new Error('API error');
+      const json = await res.json();
+      const mapped: CryptoFlowData[] = json.coins.map((c: any) => {
+        const st = COIN_STATIC[c.id] ?? { category: 'alt', color: '#888888', icon: Circle, riskLevel: 'high', reliability: 'low' };
+        return {
+          id: c.id,
+          name: c.name,
+          symbol: c.symbol,
+          marketCap: c.marketCap,
+          price: c.price,
+          change24h: c.change24h,
+          volume24h: c.volume24h,
+          flow: c.change24h > 1 ? 'in' : c.change24h < -1 ? 'out' : 'neutral',
+          riskLevel: st.riskLevel,
+          category: st.category,
+          color: st.color,
+          icon: st.icon,
+          lastUpdated: c.lastUpdated,
+          dataSource: 'CoinGecko',
+          reliability: st.reliability,
+        } as CryptoFlowData;
+      });
+      setCryptoData(mapped);
+      setTotalMarketCapGlobal(json.totalMarketCapT);
+      setTotalVolumeGlobal(json.totalVolumeB);
+      setLastRefresh(new Date());
+    } catch (err) {
+      console.error('Failed to fetch crypto data:', err);
     }
-  ];
+  }, []);
 
   const timeframes = [
     { id: '1h', name: '1시간' },
@@ -149,23 +111,17 @@ export default function CryptoFlowTracker() {
     { id: 'privacy', name: '프라이버시' }
   ];
 
-  const filteredData = selectedCategory === 'all' 
-    ? cryptoData 
+  const filteredData = selectedCategory === 'all'
+    ? cryptoData
     : cryptoData.filter(item => item.category === selectedCategory);
 
-  const totalMarketCap = cryptoData.reduce((sum, item) => sum + item.marketCap, 0);
-  const totalVolume = cryptoData.reduce((sum, item) => sum + item.volume24h, 0);
-
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
+    fetchCryptoData().finally(() => setIsLoading(false));
+  }, [fetchCryptoData]);
 
-  // 데이터 새로고침
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setLastRefresh(new Date());
+    await fetchCryptoData();
     setIsRefreshing(false);
   };
 
@@ -321,7 +277,7 @@ export default function CryptoFlowTracker() {
             <h3 className="text-lg font-bold text-gray-900">총 시가총액</h3>
           </div>
           <div className="text-3xl font-black text-gray-900">
-            ${totalMarketCap.toFixed(1)}T
+            {totalMarketCapGlobal > 0 ? `$${totalMarketCapGlobal.toFixed(2)}T` : '-'}
           </div>
           <div className="text-sm text-gray-700 font-medium">
             전체 암호화폐 시장
@@ -334,7 +290,7 @@ export default function CryptoFlowTracker() {
             <h3 className="text-lg font-bold text-gray-900">24시간 거래량</h3>
           </div>
           <div className="text-3xl font-black text-gray-900">
-            ${totalVolume.toFixed(1)}B
+            {totalVolumeGlobal > 0 ? `$${totalVolumeGlobal.toFixed(0)}B` : '-'}
           </div>
           <div className="text-sm text-gray-700 font-medium">
             지난 24시간 거래량
@@ -344,13 +300,13 @@ export default function CryptoFlowTracker() {
         <div className="bg-gradient-to-br from-white to-gray-100 backdrop-blur-lg rounded-xl p-6 border-2 border-gray-300 shadow-lg">
           <div className="flex items-center gap-3 mb-3">
             <Zap className="w-6 h-6 text-yellow-700" />
-            <h3 className="text-lg font-bold text-gray-900">활성 코인</h3>
+            <h3 className="text-lg font-bold text-gray-900">추적 코인</h3>
           </div>
           <div className="text-3xl font-black text-gray-900">
             {cryptoData.length}개
           </div>
           <div className="text-sm text-gray-700 font-medium">
-            추적 중인 암호화폐
+            CoinGecko 실시간 데이터
           </div>
         </div>
       </div>

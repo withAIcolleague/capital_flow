@@ -20,13 +20,13 @@ export class RealAPIService {
     const env = (globalThis as any).process?.env || {};
     
     this.apiKeys = {
-      alphaVantage: env.NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY || '6BM662UT3RN9UIBE',
-      fred: env.NEXT_PUBLIC_FRED_API_KEY || 'a80189315bd5dcab43e2a94caffb68df',
-      coinGecko: env.NEXT_PUBLIC_COINGECKO_API_KEY || 'demo',
-      nasdaq: env.NEXT_PUBLIC_NASDAQ_API_KEY || '5EpP4EX1dzbsurQ3xjsw',
-      polygon: env.NEXT_PUBLIC_POLYGON_API_KEY || 'dlEuZrQUoiCbqxko74MJOM5TiVP7kusp',
-      finnhub: env.NEXT_PUBLIC_FINNHUB_API_KEY || 'd38esn9r01qlbdj56370d38esn9r01qlbdj5637g',
-      coindesk: env.NEXT_PUBLIC_COINDESK_API_KEY || 'd64d7af7548b5f7ac4ebaf453c56dc33e9e5a150fd1b3db588bd6aa3770f325f',
+      alphaVantage: env.NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY || '',
+      fred: env.NEXT_PUBLIC_FRED_API_KEY || '',
+      coinGecko: env.NEXT_PUBLIC_COINGECKO_API_KEY || '',
+      nasdaq: env.NEXT_PUBLIC_NASDAQ_API_KEY || '',
+      polygon: env.NEXT_PUBLIC_POLYGON_API_KEY || '',
+      finnhub: env.NEXT_PUBLIC_FINNHUB_API_KEY || '',
+      coindesk: env.NEXT_PUBLIC_COINDESK_API_KEY || '',
       yahooFinance: 'no-key-required'
     };
     this.loadSavedAPIKeys();
